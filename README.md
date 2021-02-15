@@ -8,3 +8,5 @@ En este simulador tenemos tres partes:
 2. En la segunda tabla vemos todos los activos que agregamos a nuestra cartera. Por cada uno de ellos podemos borrarlos o "Cerrar trade". Si lo cerramos quiere decir que lo vendimos, y en este caso pasa el activo a la tercera tabla.
 
 3. En esta tercera tabla tenemos todos los trades que hemos cerrado.
+
+Para ver el proyecto funcionando ir a: https://diegodefrancesco.github.io/coderhouse-cursojs/
