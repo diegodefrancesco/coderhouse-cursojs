@@ -4,14 +4,15 @@ const activosDisponibles = [];
 let miCartera = JSON.parse(localStorage.getItem('cartera'));
 let misTrades = JSON.parse(localStorage.getItem('trades'));
 
-const miCarteraUI = document.getElementById("activosEnCartera");
-const misTradesUI = document.getElementById("tradesCerrados");
-let activoDisponibleFila = "";
+const miCarteraUI = $('#activosEnCartera');
+const misTradesUI = $('#tradesCerrados')
 let miCarteraFila;
 let misTradesFila;
 
 let index = localStorage.getItem('indexMiCartera') || 0;
 let indexMisTrades = localStorage.getItem('indexMisTrades') || 0;
+
+let inputBuscador = $('#inputBuscarUI');
 
 // DEFINICIONES DE OBJETOS
 
@@ -102,27 +103,24 @@ function inputsEstanVacios (input){
 
 // FUNCIONES SOBRE STORAGE
 
-
 const agregaActivo = (activo) => {
   let inputNominales = document.getElementById(activo.ticker + "-nominales");
   let inputFechaDeCompra = document.getElementById(activo.ticker + "-fechaDeCompra");
   let inputPrecioDeCompra = document.getElementById(activo.ticker + "-precioDeCompra"); 
   
-  // VALIDACION DEL FORMULARIO
-   
-  if(inputsEstanVacios([inputNominales,inputFechaDeCompra,inputPrecioDeCompra])) return;
+  $('#formActivosDisponibles').submit(function (e) { 
+    e.preventDefault();
+  });
 
-  /* ESTO LO HAGO CON LA PROPIEDAD MIN="0" DENTRO DE LA ETIQUETA DEL INPUT
-    if(!Number.isInteger(parseInt(inputNominales.value)) && (parseInt(inputNominales.value) < 0)) {inputNominales.style.borderColor = "Red"; return};
-    if(!Number.isInteger(parseInt(inputPrecioDeCompra.value)) && (parseInt(inputPrecioDeCompra.value) < 0)) {inputPrecioDeCompra.style.borderColor = "Red"; return};
-  */  
+  // VALIDACION DEL FORMULARIO
+  if(inputsEstanVacios([inputNominales,inputFechaDeCompra,inputPrecioDeCompra])) return;
   
   let activoParaAgregar = new ActivoEnCartera (activo.ticker,activo.descripcion,activo.precioActual,index++,inputNominales.value,new Date(inputFechaDeCompra.value).getTime(),inputPrecioDeCompra.value);
   miCartera.push(activoParaAgregar);
   localStorage.setItem('cartera', JSON.stringify(miCartera));
   localStorage.setItem('indexMiCartera', index);
+  $('#formActivosDisponibles')[0].reset();
   pintarCartera ();
-  inputNominales.value = null;
 }
 
 const borrarActivo = (index) => {
@@ -151,7 +149,6 @@ const borrarTrade = (index) => {
 }
 
 const pintarCartera = () => {
-  miCarteraUI.innerHTML = ``;
   miCarteraFila = "";
   if(miCartera === null){
     miCartera = [];
@@ -180,11 +177,10 @@ const pintarCartera = () => {
       `;      
     });
   }
-  miCarteraUI.innerHTML = miCarteraFila;
-}
+  $('#activosEnCartera').hide().html(miCarteraFila).fadeIn(300);
+} // ...pintarCartera()
 
 const pintarTrades = () => {
-  misTradesUI.innerHTML = ``;
   misTradesFila = "";
   if(misTrades === null){
     misTrades = [];
@@ -212,8 +208,8 @@ const pintarTrades = () => {
       `;      
     });
   }
-  misTradesUI.innerHTML = misTradesFila;
-}
+  misTradesUI.html(misTradesFila);
+} // ...pintarTrades()
 
 // CONSTRUYE LA TABLA CON LOS ACTIVOS DISPONIBLES PARA AGREGAR A LA CARTERA
 
@@ -223,42 +219,16 @@ activosDisponibles.push(new Activo("FB", "Facebook Inc.", 5095));
 activosDisponibles.push(new Activo("MSFT", "Microsoft Corp.", 3698));
 activosDisponibles.push(new Activo("GLBN", "Globant", 5690));
 
-/* 
-for (let i = 0; i < activosDisponibles.length; i++) {
-  activoDisponibleFila += `
-  <tr id="${activosDisponibles[i].ticker}-fila">
-  <th scope="row" class="text-start">${activosDisponibles[i].ticker}</th>
-  <td class="text-start">${activosDisponibles[i].descripcion}</td>
-  <td class="text-end">$ ${activosDisponibles[i].precioActual}</td>
-  <td>
-  <input type="number" name="${activosDisponibles[i].ticker}-nominales" min="0" class="form-control" id="${activosDisponibles[i].ticker}-nominales">
-  <div class="invalid-feedback">Invalido</div>
-  </td>
-  <td><input type="text" name="${activosDisponibles[i].ticker}-fechaDeCompra" class="form-control" id="${activosDisponibles[i].ticker}-fechaDeCompra"></td>
-  <td>
-  <div class="input-group">
-  <span class="input-group-text">$</span>
-  <input type="number" name="${activosDisponibles[i].ticker}-precioDeCompra" min="0" class="form-control" id="${activosDisponibles[i].ticker}-precioDeCompra">
-  </div>
-  </td>
-  <td class="text-end"><input id="boton-${activosDisponibles[i].ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100" onclick="agregaActivo(activosDisponibles[${i}]);"></td>
-  </tr>
-  `;
-}
- */
-
-
-inputBuscador = document.querySelector("#inputBuscarUI");
-
 
 const filtrarActivos = () => {
-  const textoBuscado = inputBuscador.value.toLowerCase();
-  activoDisponibleFila = ``;
+  const textoBuscado = inputBuscador.val().toLowerCase();
+  let activoDisponibleFila = "";
+  $('#activosDisponibles').html("");
   for(let activo of activosDisponibles){
     let ticker = activo.ticker.toLowerCase();
     let descripcion = activo.descripcion.toLowerCase();
     if (ticker.indexOf(textoBuscado) !== -1 || descripcion.indexOf(textoBuscado) !== -1 ) {
-      activoDisponibleFila += `
+      activoDisponibleFila = `
       <tr id="${activo.ticker}-fila">
       <th scope="row" class="text-start">${activo.ticker}</th>
       <td class="text-start">${activo.descripcion}</td>
@@ -277,29 +247,20 @@ const filtrarActivos = () => {
       <td class="text-end"><input id="boton-${activo.ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100"></td>
       </tr>
       `;
-    }
-  }
-  if (activoDisponibleFila === "") activoDisponibleFila += `<tr><td colspan='7'>Ningun resultado coincide con su busqueda.</td></tr>`;
-  
-  document.getElementById("activosDisponibles").innerHTML = activoDisponibleFila;
 
-  for(let activo of activosDisponibles){
-    let ticker = activo.ticker.toLowerCase();
-    let descripcion = activo.descripcion.toLowerCase();
-    if (ticker.indexOf(textoBuscado) !== -1 || descripcion.indexOf(textoBuscado) !== -1 ) {
-      let botonDelActivo = document.querySelector("#boton-"+activo.ticker);
-       botonDelActivo.addEventListener('click', ()=>{
+      $('#activosDisponibles').append(activoDisponibleFila);
+
+      $("#boton-"+activo.ticker).on('click', () => { 
         agregaActivo(activo);
-      }); 
+      });
     }
   }
-}
-
+  if (activoDisponibleFila === "") { $('#activosDisponibles').html('<tr><td colspan="7">Ningun resultado coincide con su busqueda.</td></tr>') };
+} // ...filtrarActivos()
 
 filtrarActivos();
+$("#inputBuscarUI").keyup(filtrarActivos);
 
-
-inputBuscador.addEventListener('keyup', filtrarActivos);
 
 document.addEventListener('DOMContentLoaded', pintarCartera);
 document.addEventListener('DOMContentLoaded', pintarTrades);
