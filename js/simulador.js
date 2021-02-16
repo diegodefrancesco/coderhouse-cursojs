@@ -13,7 +13,6 @@ let misTradesFila;
 let index = localStorage.getItem('indexMiCartera') || 0;
 let indexMisTrades = localStorage.getItem('indexMisTrades') || 0;
 
-
 // DEFINICIONES DE OBJETOS
 
 class Activo {
@@ -225,10 +224,10 @@ activosDisponibles.push(new Activo("FB", "Facebook Inc.", 5095));
 activosDisponibles.push(new Activo("MSFT", "Microsoft Corp.", 3698));
 activosDisponibles.push(new Activo("GLBN", "Globant", 5690));
 
+/* 
 for (let i = 0; i < activosDisponibles.length; i++) {
   activoDisponibleFila += `
-  <form id="${activosDisponibles[i].ticker}" method="post">
-  <tr>
+  <tr id="${activosDisponibles[i].ticker}-fila">
   <th scope="row" class="text-start">${activosDisponibles[i].ticker}</th>
   <td class="text-start">${activosDisponibles[i].descripcion}</td>
   <td class="text-end">$ ${activosDisponibles[i].precioActual}</td>
@@ -245,11 +244,48 @@ for (let i = 0; i < activosDisponibles.length; i++) {
   </td>
   <td class="text-end"><input id="boton-${activosDisponibles[i].ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100" onclick="agregaActivo(activosDisponibles[${i}]);"></td>
   </tr>
-  </form>
   `;
 }
+ */
 
 
-document.getElementById("activosDisponibles").innerHTML = activoDisponibleFila;
+inputBuscador = document.querySelector("#inputBuscarUI");
+
+
+const filtrarActivos = () => {
+  const textoBuscado = inputBuscador.value.toLowerCase();
+  activoDisponibleFila = ``;
+  for(let activo of activosDisponibles){
+    let ticker = activo.ticker.toLowerCase();
+    let descripcion = activo.descripcion.toLowerCase();
+    if (ticker.indexOf(textoBuscado) !== -1 || descripcion.indexOf(textoBuscado) !== -1 ) {
+      activoDisponibleFila += `
+      <tr id="${activo.ticker}-fila">
+      <th scope="row" class="text-start">${activo.ticker}</th>
+      <td class="text-start">${activo.descripcion}</td>
+      <td class="text-end">$ ${activo.precioActual}</td>
+      <td>
+      <input type="number" name="${activo.ticker}-nominales" min="0" class="form-control" id="${activo.ticker}-nominales">
+      <div class="invalid-feedback">Invalido</div>
+      </td>
+      <td><input type="text" name="${activo.ticker}-fechaDeCompra" class="form-control" id="${activo.ticker}-fechaDeCompra"></td>
+      <td>
+      <div class="input-group">
+      <span class="input-group-text">$</span>
+      <input type="number" name="${activo.ticker}-precioDeCompra" min="0" class="form-control" id="${activo.ticker}-precioDeCompra">
+      </div>
+      </td>
+      <td class="text-end"><input id="boton-${activo.ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100" onclick="agregaActivo(activos);"></td>
+      </tr>
+      `;
+    }
+  }
+  if (activoDisponibleFila === "") activoDisponibleFila += `<tr><td colspan='7'>Ningun resultado coincide con su busqueda.</td></tr>`;
+  document.getElementById("activosDisponibles").innerHTML = activoDisponibleFila;
+}
+
+filtrarActivos();
+inputBuscador.addEventListener('keyup', filtrarActivos);
+
 document.addEventListener('DOMContentLoaded', pintarCartera);
 document.addEventListener('DOMContentLoaded', pintarTrades);
