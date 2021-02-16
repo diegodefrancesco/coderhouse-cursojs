@@ -278,24 +278,28 @@ const filtrarActivos = () => {
       </tr>
       `;
     }
-//    <td class="text-end"><input id="boton-${activo.ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100" onclick="agregaActivo(${activo});"></td>
   }
   if (activoDisponibleFila === "") activoDisponibleFila += `<tr><td colspan='7'>Ningun resultado coincide con su busqueda.</td></tr>`;
+  
   document.getElementById("activosDisponibles").innerHTML = activoDisponibleFila;
+
+  for(let activo of activosDisponibles){
+    let ticker = activo.ticker.toLowerCase();
+    let descripcion = activo.descripcion.toLowerCase();
+    if (ticker.indexOf(textoBuscado) !== -1 || descripcion.indexOf(textoBuscado) !== -1 ) {
+      let botonDelActivo = document.querySelector("#boton-"+activo.ticker);
+       botonDelActivo.addEventListener('click', ()=>{
+        agregaActivo(activo);
+      }); 
+    }
+  }
 }
 
+
 filtrarActivos();
+
+
 inputBuscador.addEventListener('keyup', filtrarActivos);
-
-for(let activo of activosDisponibles){
-  let botonDelActivo = document.querySelector("#boton-"+activo.ticker);
-
-  botonDelActivo.addEventListener('click', ()=>{
-    agregaActivo(activo);
-  });
-
-
-};
 
 document.addEventListener('DOMContentLoaded', pintarCartera);
 document.addEventListener('DOMContentLoaded', pintarTrades);
