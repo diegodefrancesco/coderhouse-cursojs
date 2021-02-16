@@ -134,7 +134,6 @@ const borrarActivo = (index) => {
 }
 
 const cerrarTrade = (indice) => {
-  //pasa por referencia el indice del arraw miCartera que hace referencia al objeto que quiero cerrar
   let activoParaAgregar = new ActivoCerrado (miCartera[indice].ticker,miCartera[indice].descripcion,indexMisTrades++,miCartera[indice].nominales,miCartera[indice].fechaDeCompra,miCartera[indice].precioDeCompra,new Date().getTime(),miCartera[indice].precioActual);
   misTrades.push(activoParaAgregar);
   localStorage.setItem('trades', JSON.stringify(misTrades));
@@ -275,10 +274,11 @@ const filtrarActivos = () => {
       <input type="number" name="${activo.ticker}-precioDeCompra" min="0" class="form-control" id="${activo.ticker}-precioDeCompra">
       </div>
       </td>
-      <td class="text-end"><input id="boton-${activo.ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100" onclick="agregaActivo(activos);"></td>
+      <td class="text-end"><input id="boton-${activo.ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100"></td>
       </tr>
       `;
     }
+//    <td class="text-end"><input id="boton-${activo.ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100" onclick="agregaActivo(${activo});"></td>
   }
   if (activoDisponibleFila === "") activoDisponibleFila += `<tr><td colspan='7'>Ningun resultado coincide con su busqueda.</td></tr>`;
   document.getElementById("activosDisponibles").innerHTML = activoDisponibleFila;
@@ -286,6 +286,16 @@ const filtrarActivos = () => {
 
 filtrarActivos();
 inputBuscador.addEventListener('keyup', filtrarActivos);
+
+for(let activo of activosDisponibles){
+  let botonDelActivo = document.querySelector("#boton-"+activo.ticker);
+
+  botonDelActivo.addEventListener('click', ()=>{
+    agregaActivo(activo);
+  });
+
+
+};
 
 document.addEventListener('DOMContentLoaded', pintarCartera);
 document.addEventListener('DOMContentLoaded', pintarTrades);
