@@ -249,7 +249,6 @@ const filtrarActivos = () => {
       `;
 
       $('#activosDisponibles').append(activoDisponibleFila);
-
       $("#boton-"+activo.ticker).on('click', () => { 
         agregaActivo(activo);
       });
@@ -261,6 +260,16 @@ const filtrarActivos = () => {
 filtrarActivos();
 $("#inputBuscarUI").keyup(filtrarActivos);
 
+pintarCartera();
+pintarTrades();
 
-document.addEventListener('DOMContentLoaded', pintarCartera);
-document.addEventListener('DOMContentLoaded', pintarTrades);
+
+
+$("#limpiaBusqueda").on('click', (e) => { 
+  e.preventDefault();
+  inputBuscador.val("");
+  filtrarActivos();
+});
+
+//document.addEventListener('DOMContentLoaded', pintarCartera);
+//document.addEventListener('DOMContentLoaded', pintarTrades);
