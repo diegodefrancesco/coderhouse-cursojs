@@ -284,7 +284,6 @@ const filtrarActivos = () => {
   document.getElementById("activosDisponibles").innerHTML = activoDisponibleFila;
 }
 
-
 filtrarActivos();
 inputBuscador.addEventListener('keyup', filtrarActivos);
 
