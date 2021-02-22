@@ -14,6 +14,24 @@ let indexMisTrades = localStorage.getItem('indexMisTrades') || 0;
 
 let inputBuscador = $('#inputBuscarUI');
 
+toastr.options = {
+  "closeButton": true,
+  "debug": false,
+  "newestOnTop": true,
+  "progressBar": false,
+  "positionClass": "toast-bottom-right",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "1000",
+  "hideDuration": "3000",
+  "timeOut": "5000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+}
+
 // DEFINICIONES DE OBJETOS
 
 class Activo {
@@ -121,14 +139,17 @@ const agregaActivo = (activo) => {
   localStorage.setItem('indexMiCartera', index);
   $('#formActivosDisponibles')[0].reset();
   pintarCartera ();
+  toastr["success"]("El activo ha sido agregado a su cartera de inversion.");
+
 }
 
-const borrarActivo = (index) => {
+const borrarActivo = (index, alert = 1) => {
   miCartera.forEach((e, i) => {
     if(e.index === index) miCartera.splice(i,1);
   });
   localStorage.setItem('cartera', JSON.stringify(miCartera));
   pintarCartera ();
+  if(alert) toastr["warning"]("El activo ha sido borrado de su cartera de inversion.");
 }
 
 const cerrarTrade = (indice) => {
@@ -136,8 +157,9 @@ const cerrarTrade = (indice) => {
   misTrades.push(activoParaAgregar);
   localStorage.setItem('trades', JSON.stringify(misTrades));
   localStorage.setItem('indexMisTrades', indexMisTrades);
-  borrarActivo(miCartera[indice].index);
+  borrarActivo(miCartera[indice].index, 0);
   pintarTrades();
+  toastr["success"]("El activo ha sido agregado a sus trades.");
 }
 
 const borrarTrade = (index) => {
@@ -146,6 +168,7 @@ const borrarTrade = (index) => {
   });
   localStorage.setItem('trades', JSON.stringify(misTrades));
   pintarTrades ();
+  toastr["warning"]("El activo ha sido borrado de sus trades.");
 }
 
 const pintarCartera = () => {
@@ -263,13 +286,8 @@ $("#inputBuscarUI").keyup(filtrarActivos);
 pintarCartera();
 pintarTrades();
 
-
-
 $("#limpiaBusqueda").on('click', (e) => { 
   e.preventDefault();
   inputBuscador.val("");
   filtrarActivos();
 });
-
-//document.addEventListener('DOMContentLoaded', pintarCartera);
-//document.addEventListener('DOMContentLoaded', pintarTrades);
