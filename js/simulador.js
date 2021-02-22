@@ -4,7 +4,6 @@ const activosDisponibles = [];
 let miCartera = JSON.parse(localStorage.getItem('cartera'));
 let misTrades = JSON.parse(localStorage.getItem('trades'));
 
-const miCarteraUI = $('#activosEnCartera');
 const misTradesUI = $('#tradesCerrados')
 let miCarteraFila;
 let misTradesFila;
@@ -15,20 +14,20 @@ let indexMisTrades = localStorage.getItem('indexMisTrades') || 0;
 let inputBuscador = $('#inputBuscarUI');
 
 toastr.options = {
-  "closeButton": true,
-  "debug": false,
-  "newestOnTop": true,
-  "progressBar": false,
-  "positionClass": "toast-bottom-right",
-  "preventDuplicates": false,
-  "onclick": null,
-  "showDuration": "1000",
-  "hideDuration": "3000",
-  "timeOut": "5000",
-  "extendedTimeOut": "1000",
-  "showEasing": "swing",
-  "hideEasing": "linear",
-  "showMethod": "fadeIn",
+  "closeButton": true, 
+  "debug": false, 
+  "newestOnTop": false, 
+  "progressBar": false, 
+  "positionClass": "toast-bottom-right", 
+  "preventDuplicates": true, 
+  "onclick": null, 
+  "showDuration": "1000", 
+  "hideDuration": "3000", 
+  "timeOut": "5000", 
+  "extendedTimeOut": "1000", 
+  "showEasing": "swing", 
+  "hideEasing": "linear", 
+  "showMethod": "fadeIn", 
   "hideMethod": "fadeOut"
 }
 
@@ -74,8 +73,8 @@ class ActivoCerrado extends Activo {
     precioDeCompra,
     fechaDeVenta,
     precioDeVenta,
-  ) {
-    super(ticker, descripcion);
+    ) {
+      super(ticker, descripcion);
     this.index = index;
     this.nominales = nominales;
     this.fechaDeCompra = fechaDeCompra;
@@ -92,7 +91,7 @@ let calculaGanancia = (nominales, precioActual, precioDeCompra) => {
 
 let calculaTNA = (fechaDeCompra,  precioDeCompra, precioActual) => {
   if (fechaDeCompra && precioDeCompra && precioActual){
-
+    
     let pcjGanancia = ((precioActual / precioDeCompra) - 1) * 100;
     
     let hoy = new Date().getTime();
@@ -131,7 +130,10 @@ const agregaActivo = (activo) => {
   });
 
   // VALIDACION DEL FORMULARIO
-  if(inputsEstanVacios([inputNominales,inputFechaDeCompra,inputPrecioDeCompra])) return;
+  if(inputsEstanVacios([inputNominales,inputFechaDeCompra,inputPrecioDeCompra])) {
+    toastr["error"]("Debe completar todos los campos.");
+    return;
+  }
   
   let activoParaAgregar = new ActivoEnCartera (activo.ticker,activo.descripcion,activo.precioActual,index++,inputNominales.value,new Date(inputFechaDeCompra.value).getTime(),inputPrecioDeCompra.value);
   miCartera.push(activoParaAgregar);
@@ -140,19 +142,21 @@ const agregaActivo = (activo) => {
   $('#formActivosDisponibles')[0].reset();
   pintarCartera ();
   toastr["success"]("El activo ha sido agregado a su cartera de inversion.");
-
+  
 }
 
-const borrarActivo = (index, alert = 1) => {
+function borrarActivo(index, alert = 1) {
   miCartera.forEach((e, i) => {
-    if(e.index === index) miCartera.splice(i,1);
+    if (e.index === index)
+      miCartera.splice(i, 1);
   });
   localStorage.setItem('cartera', JSON.stringify(miCartera));
-  pintarCartera ();
-  if(alert) toastr["warning"]("El activo ha sido borrado de su cartera de inversion.");
+  pintarCartera();
+  if (alert)
+    toastr["warning"]("El activo ha sido borrado de su cartera de inversion.");
 }
 
-const cerrarTrade = (indice) => {
+function cerrarTrade(indice) {
   let activoParaAgregar = new ActivoCerrado (miCartera[indice].ticker,miCartera[indice].descripcion,indexMisTrades++,miCartera[indice].nominales,miCartera[indice].fechaDeCompra,miCartera[indice].precioDeCompra,new Date().getTime(),miCartera[indice].precioActual);
   misTrades.push(activoParaAgregar);
   localStorage.setItem('trades', JSON.stringify(misTrades));
