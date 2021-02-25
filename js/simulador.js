@@ -8,7 +8,8 @@ const misTradesUI = $('#tradesCerrados')
 let miCarteraFila;
 let misTradesFila;
 
-let index = localStorage.getItem('indexMiCartera') || 0;
+let index = localStorage.getItem('indexMiCartera') || 
+0;
 let indexMisTrades = localStorage.getItem('indexMisTrades') || 0;
 
 let inputBuscador = $('#inputBuscarUI');
@@ -22,8 +23,8 @@ toastr.options = {
   "preventDuplicates": true, 
   "onclick": null, 
   "showDuration": "1000", 
-  "hideDuration": "3000", 
-  "timeOut": "5000", 
+  "hideDuration": "2000", 
+  "timeOut": "2000", 
   "extendedTimeOut": "1000", 
   "showEasing": "swing", 
   "hideEasing": "linear", 
@@ -204,7 +205,7 @@ const pintarCartera = () => {
       `;      
     });
   }
-  $('#activosEnCartera').hide().html(miCarteraFila).fadeIn(300);
+  $('#activosEnCartera').hide().html(miCarteraFila).fadeIn(500);
 } // ...pintarCartera()
 
 const pintarTrades = () => {
@@ -294,4 +295,28 @@ $("#limpiaBusqueda").on('click', (e) => {
   e.preventDefault();
   inputBuscador.val("");
   filtrarActivos();
+});
+
+function iconoVar(val){
+  let valFloat = parseFloat(val.replace(',', '.'));
+  if (valFloat > 0) return "<i class='bi bi-caret-up-fill text-success'></i>";
+  else if (valFloat == 0) return "<i class='bi bi-caret-right-fill text-secondary'></i>";
+  else return "<i class='bi bi-caret-down-fill text-danger'></i>";
+}
+
+function formatoPorcentaje(nStr){
+	nStr += '';
+	x = nStr.split(',');
+	x1 = x[0];
+	x2 = x.length > 1 ? ',' + x[1].slice(0,2) : ',00';
+	return x1 + x2;
+}
+
+fetch('https://www.dolarsi.com/api/api.php?type=valoresprincipales')
+.then(response => response.json())
+.then(data => {
+  $('#solidario').html("<b class='text-white'>$ "+data[6].casa.venta+"</b> "+iconoVar(data[6].casa.variacion)+" "+formatoPorcentaje(data[6].casa.variacion)+" %");
+  $('#mep').html("<b class='text-white'>$ "+data[4].casa.venta.slice(0, -1)+"</b> "+iconoVar(data[4].casa.variacion)+" "+formatoPorcentaje(data[4].casa.variacion)+" %");
+  $('#ccl').html("<b class='text-white'>$ "+data[3].casa.venta.slice(0, -1)+"</b> "+iconoVar(data[3].casa.variacion)+" "+formatoPorcentaje(data[3].casa.variacion)+" %");
+  $('#blue').html("<b class='text-white'>$ "+data[1].casa.venta.slice(0, -1)+"</b> "+iconoVar(data[1].casa.variacion)+" "+formatoPorcentaje(data[1].casa.variacion)+" %")
 });

@@ -7,6 +7,9 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <!-- Bootstrap Icon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
     
     <!-- Toastr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -16,19 +19,37 @@
     
 </head>
 <body>
-<!-- 
-    <nav class="navbar sticky-top navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand text-secondary fs-6" href="#">Simulador Coder!</a>
+    
+    <header class="bg-dark text-white py-2 px-5 row">
+        <div class="row col-8 text-start d-flex align-items-center">
+                <h1 class="fw-bolder">Mi Cartera de Inversión</h1>
+                <p class="lead">Mediante este simulador se puede calcular el rendimiento de una inversión en el tiempo.</p>
         </div>
-    </nav>
- -->
-    <header class="bg-success text-white py-4">
-        <div class="container text-center">
-            <h1 class="fw-bolder">Mi Cartera de Inversión</h1>
-            <p class="lead">Mediante este simulador se puede calcular el rendimiento de una inversión en el tiempo.</p>
+        <div class="col-4 text-start">
+            <table class="table text-white-50 table-borderless table-sm">
+                <tbody>
+                    <tr>
+                        <th>Dolar Solidario</th>
+                        <td id="solidario"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Dolar MEP</th>
+                        <td id="mep"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Dolar CCL</th>
+                        <td id="ccl"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Dolar Blue</th>
+                        <td id="blue"></td>
+                    </tr>
+                </tbody>
+            </table>            
         </div>
     </header>
+
+        
     <section id="activos" class="py-5 bg-light">
         <div class="container col-8 mx-auto" id="alerta"></div>
         <div class="container mb-5">
@@ -134,7 +155,7 @@
         </div>
     </section>
 
-    <footer class="py-5 bg-dark">
+     <footer class="py-5 bg-dark">
         <div class="container">
             <p class="m-0 text-center text-white">Proyecto final del curso de JS para Coderhouse!</p>
         </div>
@@ -144,6 +165,5 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="js/simulador.js"></script>
-
   </body> 
 </html>
