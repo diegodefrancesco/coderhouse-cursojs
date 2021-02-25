@@ -312,11 +312,18 @@ function formatoPorcentaje(nStr){
 	return x1 + x2;
 }
 
+function dolarFormateado(data){
+  x = data.venta.split(',');
+  (x[1]) ? x[1]=x[1].slice(0,2) : x[1] = "00";
+  venta = x.join(',');
+  return "<b class='text-white'>$ "+venta+"</b> "+iconoVar(data.variacion)+" "+formatoPorcentaje(data.variacion)+" %"
+}
+
 fetch('https://www.dolarsi.com/api/api.php?type=valoresprincipales')
 .then(response => response.json())
 .then(data => {
-  $('#solidario').html("<b class='text-white'>$ "+data[6].casa.venta+"</b> "+iconoVar(data[6].casa.variacion)+" "+formatoPorcentaje(data[6].casa.variacion)+" %");
-  $('#mep').html("<b class='text-white'>$ "+data[4].casa.venta.slice(0, -1)+"</b> "+iconoVar(data[4].casa.variacion)+" "+formatoPorcentaje(data[4].casa.variacion)+" %");
-  $('#ccl').html("<b class='text-white'>$ "+data[3].casa.venta.slice(0, -1)+"</b> "+iconoVar(data[3].casa.variacion)+" "+formatoPorcentaje(data[3].casa.variacion)+" %");
-  $('#blue').html("<b class='text-white'>$ "+data[1].casa.venta.slice(0, -1)+"</b> "+iconoVar(data[1].casa.variacion)+" "+formatoPorcentaje(data[1].casa.variacion)+" %")
+  $('#solidario').html(dolarFormateado(data[6].casa));
+  $('#mep').html(dolarFormateado(data[4].casa));
+  $('#ccl').html(dolarFormateado(data[3].casa));
+  $('#blue').html(dolarFormateado(data[1].casa))
 });
