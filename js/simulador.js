@@ -7,9 +7,9 @@ let misTrades = JSON.parse(localStorage.getItem('trades'));
 const misTradesUI = $('#tradesCerrados')
 let miCarteraFila;
 let misTradesFila;
+let ultimaFila;
 
-let index = localStorage.getItem('indexMiCartera') || 
-0;
+let index = localStorage.getItem('indexMiCartera') || 0;
 let indexMisTrades = localStorage.getItem('indexMisTrades') || 0;
 
 let inputBuscador = $('#inputBuscarUI');
@@ -17,7 +17,7 @@ let inputBuscador = $('#inputBuscarUI');
 toastr.options = {
   "closeButton": true, 
   "debug": false, 
-  "newestOnTop": false, 
+  "newestOnTop": true, 
   "progressBar": false, 
   "positionClass": "toast-bottom-right", 
   "preventDuplicates": true, 
@@ -37,11 +37,9 @@ toastr.options = {
 class Activo {
   constructor(
     ticker,
-    descripcion,
     precioActual
   ) {
     this.ticker = ticker;
-    this.descripcion = descripcion;
     this.precioActual = precioActual
   }
 }
@@ -49,14 +47,13 @@ class Activo {
 class ActivoEnCartera extends Activo {
   constructor(
     ticker,
-    descripcion,
     precioActual,
     index,
     nominales,
     fechaDeCompra,
     precioDeCompra,
   ) {
-    super(ticker, descripcion, precioActual);
+    super(ticker, precioActual);
     this.index = index;
     this.nominales = nominales;
     this.fechaDeCompra = fechaDeCompra;
@@ -67,7 +64,6 @@ class ActivoEnCartera extends Activo {
 class ActivoCerrado extends Activo {
   constructor(
     ticker,
-    descripcion,
     index,
     nominales,
     fechaDeCompra,
@@ -75,7 +71,7 @@ class ActivoCerrado extends Activo {
     fechaDeVenta,
     precioDeVenta,
     ) {
-      super(ticker, descripcion);
+      super(ticker);
     this.index = index;
     this.nominales = nominales;
     this.fechaDeCompra = fechaDeCompra;
@@ -86,7 +82,7 @@ class ActivoCerrado extends Activo {
 }
 
 let calculaGanancia = (nominales, precioActual, precioDeCompra) => {
-  if (nominales && precioActual && precioDeCompra) return ((precioActual - precioDeCompra) * nominales);
+  if (nominales && precioActual && precioDeCompra) return ((precioActual - precioDeCompra) * nominales).toFixed(2);
   else return 0;
 }
 
@@ -98,19 +94,19 @@ let calculaTNA = (fechaDeCompra,  precioDeCompra, precioActual) => {
     let hoy = new Date().getTime();
     let diasTranscurridos = Math.floor((hoy - fechaDeCompra)/24/60/60/1000);
     if (diasTranscurridos < 1) return "---"
-    return Math.floor(pcjGanancia / diasTranscurridos * 365);
+    return Math.floor(pcjGanancia / diasTranscurridos * 365).toFixed(2);
   } else return "---";
 }
 
 let tenenciaValorizada = (nominales, precioActual) => {
-  if (nominales && precioActual) return nominales*precioActual;
+  if (nominales && precioActual) return (nominales*precioActual).toFixed(2);
   else return 0;
 }
 
 function inputsEstanVacios (input){
   let retorno =0;
   input.forEach(element => {
-    if (!element.value){
+    if (!element.value || element.value === 0){
       element.onfocus = () => {element.style.borderColor = null;}
       element.style.borderColor = "Red";
       retorno =1;
@@ -136,7 +132,7 @@ const agregaActivo = (activo) => {
     return;
   }
   
-  let activoParaAgregar = new ActivoEnCartera (activo.ticker,activo.descripcion,activo.precioActual,index++,inputNominales.value,new Date(inputFechaDeCompra.value).getTime(),inputPrecioDeCompra.value);
+  let activoParaAgregar = new ActivoEnCartera (activo.ticker,activo.precioActual,index++,inputNominales.value,new Date(inputFechaDeCompra.value).getTime(),inputPrecioDeCompra.value);
   miCartera.push(activoParaAgregar);
   localStorage.setItem('cartera', JSON.stringify(miCartera));
   localStorage.setItem('indexMiCartera', index);
@@ -154,11 +150,11 @@ function borrarActivo(index, alert = 1) {
   localStorage.setItem('cartera', JSON.stringify(miCartera));
   pintarCartera();
   if (alert)
-    toastr["warning"]("El activo ha sido borrado de su cartera de inversion.");
+    toastr["success"]("El activo ha sido borrado de su cartera de inversion.");
 }
 
 function cerrarTrade(indice) {
-  let activoParaAgregar = new ActivoCerrado (miCartera[indice].ticker,miCartera[indice].descripcion,indexMisTrades++,miCartera[indice].nominales,miCartera[indice].fechaDeCompra,miCartera[indice].precioDeCompra,new Date().getTime(),miCartera[indice].precioActual);
+  let activoParaAgregar = new ActivoCerrado (miCartera[indice].ticker,indexMisTrades++,miCartera[indice].nominales,miCartera[indice].fechaDeCompra,miCartera[indice].precioDeCompra,new Date().getTime(),miCartera[indice].precioActual);
   misTrades.push(activoParaAgregar);
   localStorage.setItem('trades', JSON.stringify(misTrades));
   localStorage.setItem('indexMisTrades', indexMisTrades);
@@ -173,11 +169,13 @@ const borrarTrade = (index) => {
   });
   localStorage.setItem('trades', JSON.stringify(misTrades));
   pintarTrades ();
-  toastr["warning"]("El activo ha sido borrado de sus trades.");
+  toastr["success"]("El activo ha sido borrado de sus trades.");
 }
 
 const pintarCartera = () => {
   miCarteraFila = "";
+  ultimaFila = "";
+  let sumaCartera = 0;
   if(miCartera === null){
     miCartera = [];
   }else{
@@ -186,26 +184,42 @@ const pintarCartera = () => {
       let tenencia = tenenciaValorizada(element.nominales, element.precioActual);
       let ganancia = calculaGanancia(element.nominales, element.precioActual, element.precioDeCompra);
       let tna = calculaTNA(element.fechaDeCompra, element.precioDeCompra, element.precioActual);
+      sumaCartera += parseFloat(tenencia);
       miCarteraFila += `
       <tr>
-      <th scope="row">${element.ticker}</th>
-      <td>${element.descripcion}</td>
-      <td class="text-end">${element.nominales}</td>
-      <td class="text-end">${fechaFormateada}</td>
-      <td class="text-end">$ ${element.precioDeCompra}</td>
-      <td class="text-end">$ ${element.precioActual}</td>
-      <td class="text-end">$ ${tenencia}</td>
-      <td class="text-end">$ ${ganancia}</td>
-      <td class="text-end">${tna} %</td>
-      <td class="text-end">
-      <input type="button" value="Cerrar trade" class="btn btn-outline-success" onclick="cerrarTrade(${i});">
-      <input type="button" value="Borrar" class="btn btn-outline-danger" onclick="borrarActivo(${element.index});">
-      </td>
+        <td><a href="https://es.tradingview.com/symbols/NASDAQ-${element.ticker}" target="_blank">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
+          <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z"/></svg>
+          </a>
+        </td>
+        <th scope="row">${element.ticker}</th>
+        <td class="text-end">${element.nominales}</td>
+        <td class="text-end">${fechaFormateada}</td>
+        <td class="text-end">$ ${element.precioDeCompra}</td>
+        <td class="text-end">$ ${element.precioActual}</td>
+        <td class="text-end">$ ${tenencia}</td>
+        <td class="text-end">$ ${ganancia}</td>
+        <td class="text-end">${tna} %</td>
+        <td class="text-end">
+          <input type="button" value="Cerrar trade" class="btn btn-outline-success" onclick="cerrarTrade(${i});">
+          <input type="button" value="Borrar" class="btn btn-outline-danger" onclick="borrarActivo(${element.index});">
+        </td>
       </tr>    
-      `;      
+      `;
     });
   }
+  
+  ultimaFila += `
+    <tr>
+      <td class="text-end" colspan="6"><b>TENENCIA VALORIZADA TOTAL:</b></td>
+      <td class="text-end"><b class="fs-5">$ ${sumaCartera.toFixed(2)}</b></td>
+      <td class="text-end" colspan="3"></td>
+    </tr>
+  `;
+
   $('#activosEnCartera').hide().html(miCarteraFila).fadeIn(500);
+  $('#pieDeTablaActivos').hide().html(ultimaFila).fadeIn(500);
+
 } // ...pintarCartera()
 
 const pintarTrades = () => {
@@ -220,8 +234,12 @@ const pintarTrades = () => {
       let tna = calculaTNA(element.fechaDeCompra, element.precioDeCompra, element.precioDeVenta);
       misTradesFila += `
       <tr>
+      <td><a href="https://es.tradingview.com/symbols/NASDAQ-${element.ticker}" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
+        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z"/></svg>
+        </a>
+      </td>
       <th scope="row">${element.ticker}</th>
-      <td>${element.descripcion}</td>
       <td class="text-end">${element.nominales}</td>
       <td class="text-end">${fechaFormateadaCompra}</td>
       <td class="text-end">$ ${element.precioDeCompra}</td>
@@ -230,7 +248,7 @@ const pintarTrades = () => {
       <td class="text-end">$ ${ganancia}</td>
       <td class="text-end">${tna} %</td>
       <td class="text-end">
-      <input type="button" value="Borrar" class="btn btn-outline-danger" onclick="borrarTrade(${element.index});">
+      <input type="button" value="Borrar" class="btn btn-outline-danger w-100" onclick="borrarTrade(${element.index});">
       </td>
       </tr>    
       `;      
@@ -241,35 +259,58 @@ const pintarTrades = () => {
 
 // CONSTRUYE LA TABLA CON LOS ACTIVOS DISPONIBLES PARA AGREGAR A LA CARTERA
 
-activosDisponibles.push(new Activo("AMZN", "Amazon", 3420));
-activosDisponibles.push(new Activo("GOOGL", "Alphabet Inc.", 5450));
-activosDisponibles.push(new Activo("FB", "Facebook Inc.", 5095));
-activosDisponibles.push(new Activo("MSFT", "Microsoft Corp.", 3698));
-activosDisponibles.push(new Activo("GLBN", "Globant", 5690));
+const simbolosDisponibles = ['ADBE','AMD','AMZN','AAPL','GOOGL','FB','MSFT','GILD','INTC','EBAY','NVDA','MELI','QCOM','ZM'];
+
+/* simbolosDisponibles.forEach(element => {
+  let url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol='+element+'&interval=60min&apikey=JZ9SQZS5MHPSDY5A';
+  let hoy = moment().format('YYYY-MM-DD');
+  fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    activosDisponibles.push(new Activo(element, data['Time Series (Daily)'][hoy]['4. close']));
+  })
+}); */
+
+simbolosDisponibles.forEach(element => {
+  let ayer = moment().subtract(1, 'days').format('YYYY-MM-DD');
+  let url = 'http://api.marketstack.com/v1/eod?access_key=ac9fe23bbb0851b123b56bf00b8baf6f&symbols='+element+'&date_from='+ayer;
+  fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    let precio = (data.data[0].close).toFixed(2);
+    activosDisponibles.push(new Activo(element, precio));
+  })
+});
 
 
 const filtrarActivos = () => {
   const textoBuscado = inputBuscador.val().toLowerCase();
   let activoDisponibleFila = "";
   $('#activosDisponibles').html("");
+  activosDisponibles.sort(function(a,b){
+    return (a.ticker > b.ticker);
+  });
   for(let activo of activosDisponibles){
     let ticker = activo.ticker.toLowerCase();
-    let descripcion = activo.descripcion.toLowerCase();
-    if (ticker.indexOf(textoBuscado) !== -1 || descripcion.indexOf(textoBuscado) !== -1 ) {
+    if (ticker.indexOf(textoBuscado) !== -1 ) {
       activoDisponibleFila = `
       <tr id="${activo.ticker}-fila">
+      <td><a href="https://es.tradingview.com/symbols/NASDAQ-${activo.ticker}" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
+        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z"/></svg>
+        </a>
+      </td>
       <th scope="row" class="text-start">${activo.ticker}</th>
-      <td class="text-start">${activo.descripcion}</td>
       <td class="text-end">$ ${activo.precioActual}</td>
       <td>
-      <input type="number" name="${activo.ticker}-nominales" min="0" class="form-control" id="${activo.ticker}-nominales">
+      <input type="number" name="${activo.ticker}-nominales" min="1" class="form-control" id="${activo.ticker}-nominales">
       <div class="invalid-feedback">Invalido</div>
       </td>
-      <td><input type="text" name="${activo.ticker}-fechaDeCompra" class="form-control" id="${activo.ticker}-fechaDeCompra"></td>
+      <td><input type="date" name="${activo.ticker}-fechaDeCompra" class="form-control inputDate" id="${activo.ticker}-fechaDeCompra"></td>
       <td>
       <div class="input-group">
       <span class="input-group-text">$</span>
-      <input type="number" name="${activo.ticker}-precioDeCompra" min="0" class="form-control" id="${activo.ticker}-precioDeCompra">
+      <input type="number" name="${activo.ticker}-precioDeCompra" min="0.01" class="form-control" id="${activo.ticker}-precioDeCompra">
       </div>
       </td>
       <td class="text-end"><input id="boton-${activo.ticker}" type="submit" value="Agregar a mi cartera" class="btn btn-outline-success w-100"></td>
@@ -283,9 +324,12 @@ const filtrarActivos = () => {
     }
   }
   if (activoDisponibleFila === "") { $('#activosDisponibles').html('<tr><td colspan="7">Ningun resultado coincide con su busqueda.</td></tr>') };
+  $('.inputDate').attr('min', moment().subtract(10, 'years').format('YYYY-MM-DD'));
+  $('.inputDate').attr('max', moment().format('YYYY-MM-DD'));
 } // ...filtrarActivos()
 
-filtrarActivos();
+setTimeout(function(){filtrarActivos()}, 3000);
+
 $("#inputBuscarUI").keyup(filtrarActivos);
 
 pintarCartera();
