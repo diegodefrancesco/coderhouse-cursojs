@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <head>
-    
+
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,18 +15,22 @@
     <!-- Toastr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
+    <!-- Mis estilos -->
+    <link rel="stylesheet" href="css/style.css">
+
     <title>Simulador Coder! - Curso JS!</title>
 
 </head>
 
 <body>
-    <header class="bg-dark text-white py-2 px-5 row">
-        <div class="row col-8 text-start d-flex align-items-center">
-            <h1 class="fw-bolder">Mi Cartera de Criptomonedas</h1>
+    <header class="bg-dark text-white">
+        <div class="container row">
+
+            <div class="row col-9 text-start d-flex align-items-center">
+                <h1 class="h1 fw-bolder">Mi Cartera de Criptomonedas</h1>
             <p class="lead">Simulador para calcular el rendimiento de una inversión en criptomonedas</p>
         </div>
-
-        <div class="col-4 text-start">
+        <div class="col-3 text-start">
             <table class="table text-white-50 table-borderless table-sm">
                 <tbody>
                     <tr>
@@ -48,10 +52,25 @@
                 </tbody>
             </table>            
         </div>
+    </div>
     </header>
 
-    <section id="activos" class="py-5 bg-light">
-        <div class="container col-8 mx-auto" id="alerta"></div>
+<div class="bg-success mx-auto">
+     <div class="container text-center py-3 mx-auto">
+        <div class="row align-items-center">
+            <div class="col-5 text-end fw-bolder text-white">Activos disponibles</div>
+            <div class="col-2">
+                <div class="switch-container"> 
+                    <input type="checkbox" id="switch"><label for="switch" class="lbl"></label>
+                </div>            
+            </div>
+            <div class="col-5 text-start fw-bolder text-white">Mi Cartera</div>
+        </div>
+    </div>
+</div>
+
+<div id="activosDisponiblesContainer">    
+    <section id="activos" class="py-5 bg-white">
         <div class="container mb-5">
             <div class="row">
                 <div class="col-lg-12 mx-auto text-center">
@@ -61,7 +80,7 @@
                             <div class="col-4">
                                 <div class="input-group">
                                     <input type="text" name="buscar" id="inputBuscarUI" class="form-control" placeholder="Buscar un activo...">
-                                    <button type="submit" class="btn btn-secondary" id="limpiaBusqueda">Limpiar</button>
+                                    <button type="submit" class="btn btn-success" id="limpiaBusqueda">Limpiar</button>
                                 </div>
                             </div>
                         </div>
@@ -90,12 +109,14 @@
             </div>
         </div>
     </section>
+</div>
 
-    <section id="miCartera" class="py-5">
+<div id="miCarteraContainer" class="hide">
+    <section id="miCartera" class="py-5 bg-white">
         <div class="container mb-5">
             <div class="row">
                 <div class="col-lg-12 mx-auto text-center">
-                    <h2 class="mb-3">Mi cartera</h2>
+                    <h2 class="my-3">Mi cartera</h2>
                     <div class="container">
                         <table class="table table-sm table-bordered align-middle table-striped">
                             <thead class="table-success">
@@ -108,7 +129,7 @@
                                     <th scope="col" class="text-end">Precio Actual</th>
                                     <th scope="col" class="text-end">Tenencia</th>
                                     <th scope="col" class="text-end">Ganancia</th>
-                                    <th scope="col" class="text-end">TNA $AR</th>
+                                    <th scope="col" class="text-end">TNA</th>
                                     <th scope="col" class="text-end"></th>
                                 </tr>
                             </thead>
@@ -123,11 +144,11 @@
         </div>
     </section>
 
-    <section id="misTrades" class="py-5 bg-light">
+    <section id="misTrades" class="py-5 bg-white">
         <div class="container mb-5">
             <div class="row">
                 <div class="col-lg-12 mx-auto text-center">
-                    <h2 class="mb-3">Trades cerrados</h2>
+                    <h2 class="my-3">Trades cerrados</h2>
                     <div class="container">
                         <table class="table table-sm table-bordered align-middle table-striped">
                             <thead class="table-success">
@@ -140,7 +161,7 @@
                                     <th scope="col" class="text-end">Fecha de Venta</th>
                                     <th scope="col" class="text-end">Precio de venta</th>
                                     <th scope="col" class="text-end">Ganancia</th>
-                                    <th scope="col" class="text-end">TNA $AR</th>
+                                    <th scope="col" class="text-end">TNA</th>
                                     <th scope="col" class="text-end"></th>
                                 </tr>
                             </thead>
@@ -154,8 +175,9 @@
             </div>
         </div>
     </section>
-
-     <footer class="py-5 bg-dark">
+</div>
+    
+    <footer class="py-5 bg-dark">
         <div class="container">
             <p class="m-0 text-center text-white">Proyecto final del curso de JS para Coderhouse!</p>
         </div>

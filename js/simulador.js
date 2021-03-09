@@ -153,8 +153,8 @@ const dolarFormateado = (data) => {
 
 const filtrarActivos = () => {
   const textoBuscado = inputBuscador.val().toLowerCase();
-  //let activoDisponibleFila = "";
-  //$('#activosDisponibles').html("");
+  let activoDisponibleFila;
+  $('#activosDisponibles').html("");
   for(let activo of activosDisponibles){
     let ticker = activo.ticker.toLowerCase();
     if (ticker.indexOf(textoBuscado) !== -1 ) {
@@ -183,7 +183,7 @@ const filtrarActivos = () => {
       });
     }
   }
-  if (activoDisponibleFila === "") { $('#activosDisponibles').html('<tr><td colspan="7">Ningun resultado coincide con su busqueda.</td></tr>') };
+  if (!activoDisponibleFila) { $('#activosDisponibles').html('<tr><td colspan="7"><i>Ningun resultado coincide con su busqueda.</i></td></tr>') };
   $('.inputDate').attr('min', moment().subtract(10, 'years').format('YYYY-MM-DD'));
   $('.inputDate').attr('max', moment().format('YYYY-MM-DD'));
 } // ...filtrarActivos()
@@ -235,7 +235,7 @@ const pintarCartera = () => {
       sumaCartera += parseFloat(tenencia);
       miCarteraFila += `
     <tr>
-    <td><img src="${element.image}" width="25px"></td>
+      <td><img src="${element.image}" width="25px"></td>
       <th scope="row">${element.ticker}</th>
       <td class="text-end">${element.nominales}</td>
       <td class="text-end">${fechaFormateada}</td>
@@ -253,12 +253,18 @@ const pintarCartera = () => {
     });
     if (miCartera.length !== 0) {
       ultimaFila += `
-    <tr>
-    <td class="text-end" colspan="6"><b>TENENCIA VALORIZADA TOTAL:</b></td>
-    <td class="text-end"><b class="fs-5">$ ${sumaCartera.toFixed(2)}</b></td>
-    <td class="text-end" colspan="3"></td>
-    </tr>
-    `;
+      <tr>
+      <td class="text-end" colspan="6"><b>TENENCIA VALORIZADA TOTAL:</b></td>
+      <td class="text-end"><b class="fs-5">$ ${sumaCartera.toFixed(2)}</b></td>
+      <td class="text-end" colspan="3"></td>
+      </tr>
+      `;
+    } else {
+      miCarteraFila += `
+      <tr>
+      <td colspan="10"><i>No existen activos en su cartera</i></td>
+      </tr>
+      `;
     }
   }
   $('#activosEnCartera').hide().html(miCarteraFila).fadeIn(500);
@@ -294,8 +300,17 @@ const pintarTrades = () => {
       `;      
     });
   }
-  misTradesUI.html(misTradesFila);
+  if (misTrades.length === 0) {
+    misTradesFila += `
+    <tr>
+    <td colspan="10"><i>No existen trades cerrados</i></td>
+    </tr>
+    `;
+  }
+  misTradesUI.hide().html(misTradesFila).fadeIn(500);
+
 } // ...pintarTrades()
+
 
 $(document).ready(function () {
   
@@ -328,5 +343,18 @@ $(document).ready(function () {
     inputBuscador.val("");
     filtrarActivos();
   });
+  
+  if($('#switch').prop('checked', true)) $('#switch').prop('checked', false);
+  $('#switch').on('change', () => {
+    $('#activosDisponiblesContainer').fadeToggle(100, 'linear');
+    $('#miCarteraContainer').fadeToggle(100, 'linear');
+
+ /*    $('#activosDisponiblesContainer').toggleClass('displayNone');
+    $('#miCarteraContainer').toggleClass('displayNone'); */
+
+
+
+
+  })
 
 })
